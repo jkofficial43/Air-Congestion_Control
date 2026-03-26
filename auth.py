@@ -209,20 +209,16 @@ def register_user(email, password, full_name='', requested_role='user'):
     # First user becomes admin automatically
     conn = _get_db()
     user_count = conn.execute("SELECT COUNT(*) FROM user_roles").fetchone()[0]
-    if requested_role == 'controller':
-        role = 'controller'
-        approved = 0  # needs admin approval
-    else:
-        role = requested_role
-    approved = 1
-    
+    if user_count == 0:
+        role = 'admin'
+        approved = 1
     elif requested_role == 'controller':
         role = 'controller'
-        approved = 0  # needs admin approval
+        approved = 0
     else:
         role = requested_role
         approved = 1
-
+    
     conn.execute(
         "INSERT OR REPLACE INTO user_roles (uid, email, full_name, role, approved, last_login) VALUES (?,?,?,?,?,?)",
         (uid, email, full_name, role, approved, datetime.now().isoformat())
